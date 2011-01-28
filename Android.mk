@@ -15,17 +15,33 @@ LOCAL_SRC_FILES := \
 	jmem-android.c
 
 # the assembler is only for the ARM version, don't break the Linux sim
-ifneq ($(TARGET_ARCH),arm)
-ANDROID_JPEG_NO_ASSEMBLER := true
+ifeq ($(strip $(TARGET_ARCH)),arm)
+ANDROID_JPEG_ARM_ASSEMBLER := true
 endif
 
 # temp fix until we understand why this broke cnn.com
-#ANDROID_JPEG_NO_ASSEMBLER := true
+#ANDROID_JPEG_ARM_ASSEMBLER := false
 
-ifeq ($(strip $(ANDROID_JPEG_NO_ASSEMBLER)),true)
-LOCAL_SRC_FILES += jidctint.c jidctfst.c
-else
+# use mips assembler IDCT implementation if MIPS DSP-ASE is present
+ifeq ($(strip $(TARGET_ARCH)),mips)
+  ifeq ($(strip $(ARCH_MIPS_HAS_DSP)),true)
+  ANDROID_JPEG_MIPS_ASSEMBLER := true
+  endif
+endif
+
+ifeq ($(strip $(ANDROID_JPEG_ARM_ASSEMBLER)),true)
 LOCAL_SRC_FILES += jidctint.c jidctfst.S
+else ifeq ($(strip $(ANDROID_JPEG_MIPS_ASSEMBLER)),true)
+LOCAL_CFLAGS += -DANDROID_JPEG_MIPS_ASSEMBLER -fPIC
+LOCAL_SRC_FILES += jidctint.c mips_jidctfst.c
+  ifneq ($(strip $(TARGET_CPU_ENDIAN)),EB)
+  LOCAL_SRC_FILES += mips_idct_le.s
+  else
+  LOCAL_SRC_FILES += mips_idct_be.s
+  endif
+else
+# no assembler code is used
+LOCAL_SRC_FILES += jidctint.c jidctfst.c
 endif
 
 LOCAL_CFLAGS += -DAVOID_TABLES 
