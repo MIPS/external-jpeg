@@ -50,6 +50,10 @@ void jpeg_idct_armv6 (j_decompress_ptr cinfo, jpeg_component_info * compptr,
 
 #endif
 
+#ifdef ANDROID_MIPS_IDCT
+extern void jpeg_idct_mips(j_decompress_ptr, jpeg_component_info *, JCOEFPTR, JSAMPARRAY, JDIMENSION);
+#endif
+
 /*
  * The decompressor input side (jdinput.c) saves away the appropriate
  * quantization table for each component at the start of the first scan
@@ -151,6 +155,13 @@ start_pass (j_decompress_ptr cinfo)
 	method = JDCT_IFAST;
 	break;
 #else /* ANDROID_ARMV6_IDCT */
+#ifdef ANDROID_MIPS_IDCT
+      case JDCT_ISLOW:
+      case JDCT_IFAST:
+	method_ptr = jpeg_idct_mips;
+	method = JDCT_IFAST;
+	break;
+#else /* ANDROID_MIPS_IDCT */
 #ifdef DCT_ISLOW_SUPPORTED
       case JDCT_ISLOW:
 	method_ptr = jpeg_idct_islow;
@@ -163,6 +174,7 @@ start_pass (j_decompress_ptr cinfo)
 	method = JDCT_IFAST;
 	break;
 #endif
+#endif /* ANDROID_MIPS_IDCT */
 #endif /* ANDROID_ARMV6_IDCT */
 #ifdef DCT_FLOAT_SUPPORTED
       case JDCT_FLOAT:

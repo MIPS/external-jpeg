@@ -364,7 +364,11 @@ typedef int boolean;
  */
 
 #ifndef MULTIPLIER
+#ifdef ANDROID_MIPS_IDCT
+#define MULTIPLIER  short       /* type for fastest integer multiply */
+#else
 #define MULTIPLIER  int		/* type for fastest integer multiply */
+#endif
 #endif
 
 
