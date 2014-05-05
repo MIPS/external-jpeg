@@ -71,8 +71,11 @@ include $(BUILD_STATIC_LIBRARY)
 
 # Build shared library
 include $(CLEAR_VARS)
-
-LOCAL_MODULE := libjpeg
+ifeq ($(USE_GMS_LIBS),true)
+	LOCAL_MODULE := libjpeg_old
+else
+	LOCAL_MODULE := libjpeg
+endif
 
 LOCAL_MODULE_TAGS := optional
 
@@ -94,7 +97,11 @@ LOCAL_SRC_FILES := \
 	cjpeg.c cdjpeg.h jinclude.h jconfig.h jpeglib.h jmorecfg.h jerror.h cderror.h jversion.h rdswitch.c cdjpeg.c rdtarga.c rdppm.c rdgif.c rdbmp.c
 LOCAL_MODULE:= cjpeg
 LOCAL_MODULE_TAGS := eng
-LOCAL_SHARED_LIBRARIES := libc libcutils libjpeg
+ifeq ($(USE_GMS_LIBS),true)
+	LOCAL_SHARED_LIBRARIES := libc libcutils libjpeg_old
+else
+	LOCAL_SHARED_LIBRARIES := libc libcutils libjpeg
+endif
 include $(BUILD_EXECUTABLE)
 
 include $(CLEAR_VARS)
@@ -103,5 +110,9 @@ LOCAL_SRC_FILES := \
 	djpeg.c cdjpeg.h jinclude.h jconfig.h jpeglib.h jmorecfg.h jerror.h cderror.h jversion.h cdjpeg.c wrppm.c wrgif.c wrbmp.c rdcolmap.c wrtarga.c
 LOCAL_MODULE:= djpeg
 LOCAL_MODULE_TAGS := eng
-LOCAL_SHARED_LIBRARIES := libc libcutils libjpeg
+ifeq ($(USE_GMS_LIBS),true)
+	LOCAL_SHARED_LIBRARIES := libc libcutils libjpeg_old
+else
+	LOCAL_SHARED_LIBRARIES := libc libcutils libjpeg
+endif
 include $(BUILD_EXECUTABLE)
